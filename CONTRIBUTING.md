@@ -14,7 +14,7 @@ All contributors are expected to adhere to our [Code of Conduct](./CODE_OF_CONDU
 ### Prerequisites
 To contribute code, you should have a solid foundation in the following:
 - **Node.js**: Version 22.x LTS (pinned target)
-- **Package Manager**: pnpm (version 9.x+)
+- **Package Manager**: npm (version 9.x+)
 - **Version Control**: Git
 - **Language**: TypeScript (strict type check enabled)
 - Familiarity with basic cryptographic principles is highly recommended. Please review the [CIPHER_ENGINE.md](./CIPHER_ENGINE.md) document to study the mathematical equations and parameters of each algorithm.

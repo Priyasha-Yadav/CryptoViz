@@ -25,6 +25,8 @@ interface WorkerResponse {
   error?: string
 }
 
+type WorkerResponseMessage = WorkerResponse | Uint8Array;
+
 export function useCipherWorker() {
   const workerRef = useRef<Worker | null>(null)
   const [loading, setLoading] = useState(false)
@@ -52,6 +54,7 @@ export function useCipherWorker() {
 
     worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
       const { id, success, result, error: workerError } = event.data
+
       const request = activeRequestsRef.current.get(id)
 
       if (request) {
@@ -70,9 +73,25 @@ export function useCipherWorker() {
 
     worker.onerror = (err) => {
       console.error('Worker error:', err)
-      setError('Web Worker initialization or runtime error.')
+
+      const error = new Error('Web Worker initialization or runtime error.')
+
+      // Reject all pending requests so consumers don't await forever.
+      for (const [, value] of activeRequestsRef.current.entries()) {
+        try {
+          value.reject(error)
+        } catch {
+          // Ignore secondary failures while handling a worker crash.
+        }
+      }
+      activeRequestsRef.current.clear()
+
+      setError(error.message)
       setLoading(false)
+
     }
+
+
 
     workerRef.current = worker
 
@@ -96,8 +115,10 @@ export function useCipherWorker() {
             const worker = new Worker(
               new URL('../workers/cipher.worker.ts', import.meta.url)
             )
+
             worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
               const { id, success, result, error: workerError } = event.data
+
               const req = activeRequestsRef.current.get(id)
               if (req) {
                 if (success && result) req.resolve(result)
@@ -123,14 +144,26 @@ export function useCipherWorker() {
         setLoading(true)
         setError(null)
 
-        workerRef.current.postMessage({
-          id,
-          action,
-          cipherId,
-          input,
-          key,
-          options,
-        } as WorkerRequest)
+        try {
+          const payloadStr = JSON.stringify({
+            id,
+            action,
+            cipherId,
+            input,
+            key,
+            options,
+          })
+          const encoder = new TextEncoder()
+          const payloadBuffer = encoder.encode(payloadStr)
+
+          workerRef.current.postMessage(payloadBuffer, [payloadBuffer.buffer])
+        } catch (err: unknown) {
+          activeRequestsRef.current.delete(id)
+          if (activeRequestsRef.current.size === 0) setLoading(false)
+          const message = err instanceof Error ? err.message : String(err)
+          setError(message)
+          reject(new Error(message))
+        }
       })
     },
     []

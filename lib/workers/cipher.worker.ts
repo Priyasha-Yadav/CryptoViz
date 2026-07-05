@@ -41,8 +41,17 @@ interface WorkerResponse {
   error?: string
 }
 
-self.addEventListener('message', (event: MessageEvent<WorkerRequest>) => {
-  const { id, action, cipherId, input, key, options } = event.data
+type WorkerRequestMessage = WorkerRequest | Uint8Array
+
+const workerScope = self as unknown as Worker
+
+workerScope.addEventListener('message', (event: MessageEvent<WorkerRequestMessage>) => {
+  let requestData: WorkerRequestMessage = event.data
+  if (requestData instanceof Uint8Array) {
+    const decoder = new TextDecoder()
+    requestData = JSON.parse(decoder.decode(requestData))
+  }
+  const { id, action, cipherId, input, key, options } = requestData as WorkerRequest
 
   try {
     let result: any
@@ -149,16 +158,16 @@ self.addEventListener('message', (event: MessageEvent<WorkerRequest>) => {
         throw new Error(`Unsupported cipher ID: ${cipherId}`)
     }
 
-    self.postMessage({
+    workerScope.postMessage({
       id,
       success: true,
       result,
     })
-  } catch (error: any) {
-    self.postMessage({
+  } catch (error: unknown) {
+    workerScope.postMessage({
       id,
       success: false,
-      error: error?.message || String(error),
+      error: error instanceof Error ? error.message : String(error),
     })
   }
 })

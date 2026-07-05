@@ -217,7 +217,7 @@ Ensure you have the following installed before launching:
 | Utility | Minimum Version | Check Command |
 | :--- | :--- | :--- |
 | **Node.js** | 22.x LTS | `node -v` |
-| **pnpm** | 9.x | `pnpm -v` |
+| **npm** | 10.x+ | `npm -v` |
 | **Git** | Latest | `git --version` |
 
 ### Step-by-Step Setup
@@ -225,12 +225,12 @@ Ensure you have the following installed before launching:
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/csxark/CryptoViz.git
-   cd cryptoviz
+   cd CryptoViz
    ```
 
 2. **Install node dependencies**:
    ```bash
-   pnpm install
+   npm install
    ```
 
 3. **Configure Environment Variables** (Required for OG metadata):
@@ -241,7 +241,7 @@ Ensure you have the following installed before launching:
 
 4. **Launch the development server**:
    ```bash
-   pnpm dev
+   npm run dev
    ```
 
 Open `http://localhost:3000` in your web browser. You should see the CryptoViz landing page with the navigation bar and theme toggle fully functional.
@@ -252,20 +252,10 @@ Open `http://localhost:3000` in your web browser. You should see the CryptoViz l
 
 | Command | Description | When to use |
 | :--- | :--- | :--- |
-| `pnpm dev` | Starts development server on port 3000. | Active UI coding and development. |
-| `pnpm build` | Compiles source and exports static assets. | Production preparation or preview check. |
-| `pnpm postbuild` | Generates Pagefind WASM indexes. | Must run after `pnpm build` finishes. |
-| `pnpm lint` | Performs ESLint and Biome code verification. | Code formatting and styling check. |
-| `pnpm typecheck` | Validates TypeScript files using `tsc`. | Compile safety verification. |
-| `pnpm test` | Executes unit tests under Vitest. | Validating cipher correctness. |
-| `pnpm test:watch` | Runs Vitest tests in watch mode. | Active development of cipher test cases. |
-| `pnpm test:e2e` | Runs Playwright browser tests. | Validating overall user browser paths. |
-| `pnpm test:a11y` | Executes automated axe-core audits. | Accessibility compliance checks. |
-| `pnpm test:security` | Asserts security header structures. | Verifying CSP compliance in `vercel.json`. |
-| `pnpm audit` | Performs vulnerability scanning. | Checking npm dependencies safety. |
-| `pnpm analyze` | Triggers bundle payload analysis. | Budget validation for Javascript chunk sizes. |
-| `pnpm db:push` | Syncs local schema definitions. | Updating Neon database structure (Phase 9). |
-| `pnpm db:migrate` | Runs Drizzle SQL migration routines. | Applying DB migrations in production (Phase 9). |
+| `npm run dev` | Starts the development server. | Active development. |
+| `npm run build` | Builds the project for production. | Before deployment. |
+| `npm run lint` | Runs ESLint to check code quality. | Before committing changes. |
+| `npm start` | Starts the production server after running `npm run build`. | Previewing a production build locally. |
 
 ---
 

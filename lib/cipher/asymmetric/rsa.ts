@@ -140,12 +140,23 @@ function parseRsaKey(keyStr: string, isPrivateKey: boolean): { n: bigint; e?: bi
       }
     }
   } catch {}
-
+   
   const parts = cleanKey.split(/[\s,]+/).map(p => p.trim()).filter(Boolean)
   if (parts.length === 3) {
-  const p = BigInt(parts[0])
-  const q = BigInt(parts[1])
-  const e = BigInt(parts[2])
+ let p: bigint
+let q: bigint
+let e: bigint
+
+try {
+  p = BigInt(parts[0])
+  q = BigInt(parts[1])
+  e = BigInt(parts[2])
+} catch {
+  throw new CipherError(
+    'INVALID_KEY',
+    'Invalid RSA key format. Key values must be valid numbers.'
+  )
+}
 
   if (p <= 1n || q <= 1n) {
     throw new CipherError('INVALID_KEY', 'p and q must both be greater than 1.')
@@ -160,8 +171,18 @@ function parseRsaKey(keyStr: string, isPrivateKey: boolean): { n: bigint; e?: bi
   return { n, e }
 }
 if (parts.length === 2) {
-  const n = BigInt(parts[0])
-  const val = BigInt(parts[1])
+  let n: bigint
+let val: bigint
+
+try {
+  n = BigInt(parts[0])
+  val = BigInt(parts[1])
+} catch {
+  throw new CipherError(
+    'INVALID_KEY',
+    'Invalid RSA key format. Key values must be valid numbers.'
+  )
+}
 
   if (n < 128n) {
     throw new CipherError(

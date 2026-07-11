@@ -22,7 +22,7 @@ function mockMatchMedia(matches: boolean) {
     removeEventListener: vi.fn(),
   }
   vi.stubGlobal('matchMedia', vi.fn().mockReturnValue(mql))
-  return mql
+  return { mql, listeners, emitChange: (next: boolean) => listeners.forEach((cb) => cb({ matches: next } as MediaQueryListEvent)) }
 }
 
 describe('StepAnimator', () => {
@@ -153,6 +153,27 @@ describe('StepAnimator', () => {
 
     fireEvent.click(screen.getByLabelText('Play'))
     expect(onStepChange).toHaveBeenCalledWith(3)
+  })
+
+  it('stops playback if reduced motion turns on mid-play', () => {
+    const { emitChange } = mockMatchMedia(false)
+    const onStepChange = vi.fn()
+    render(<StepAnimator steps={makeSteps(4)} currentStep={0} onStepChange={onStepChange} />)
+
+    fireEvent.click(screen.getByLabelText('Play'))
+    expect(screen.getByLabelText('Pause')).toBeInTheDocument()
+
+    act(() => {
+      emitChange(true)
+    })
+
+    expect(screen.getByLabelText('Play')).toBeInTheDocument()
+
+    // Timer ticks should no longer advance steps once paused.
+    act(() => {
+      vi.advanceTimersByTime(3000)
+    })
+    expect(onStepChange).not.toHaveBeenCalled()
   })
 
   it('disables playback controls when there is only one step', () => {

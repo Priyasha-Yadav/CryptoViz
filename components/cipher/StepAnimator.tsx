@@ -25,7 +25,10 @@ const StepAnimator = memo(function StepAnimator({ steps, currentStep, onStepChan
     const mql = window.matchMedia('(prefers-reduced-motion: reduce)')
     setReducedMotion(mql.matches)
 
-    const handleChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches)
+    const handleChange = (e: MediaQueryListEvent) => {
+      setReducedMotion(e.matches)
+      if (e.matches) setIsPlaying(false)
+    }
     mql.addEventListener('change', handleChange)
     return () => mql.removeEventListener('change', handleChange)
   }, [])
@@ -53,14 +56,11 @@ const StepAnimator = memo(function StepAnimator({ steps, currentStep, onStepChan
       return
     }
 
-    setIsPlaying((prev) => {
-      const next = !prev
-      if (next && currentStep === steps.length - 1) {
-        onStepChange(0)
-      }
-      return next
-    })
-  }, [hasMultipleSteps, reducedMotion, currentStep, steps.length, onStepChange])
+    if (!isPlaying && currentStep === steps.length - 1) {
+      onStepChange(0)
+    }
+    setIsPlaying(!isPlaying)
+  }, [hasMultipleSteps, reducedMotion, isPlaying, currentStep, steps.length, onStepChange])
 
   // Auto-advance loop.
   useEffect(() => {

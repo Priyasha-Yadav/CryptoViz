@@ -5,13 +5,18 @@ import { BenchmarkResult, BenchmarkSession } from '@/types/benchmark'
 import { BenchmarkEngine, PRESET_INPUT_SIZES, PRESET_ITERATIONS } from '@/lib/utils/benchmark'
 import { getDeviceInfo } from '@/lib/utils/deviceInfo'
 import { useCipherWorker } from '@/lib/hooks/useCipherWorker'
+import dynamic from 'next/dynamic'
 import AlgorithmSelector from '@/components/benchmark/AlgorithmSelector'
 import BenchmarkControls from '@/components/benchmark/BenchmarkControls'
 import PerformanceMetrics from '@/components/benchmark/PerformanceMetrics'
-import ComparisonChart from '@/components/benchmark/ComparisonChart'
 import DeviceInfoDisplay from '@/components/benchmark/DeviceInfoDisplay'
 import ExportButton from '@/components/benchmark/ExportButton'
 import CategoryTabs from '@/components/benchmark/CategoryTabs'
+
+const ComparisonChart = dynamic(() => import('@/components/benchmark/ComparisonChart'), { 
+  ssr: false, 
+  loading: () => <div className="h-96 flex items-center justify-center rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"><p className="text-zinc-500 dark:text-zinc-400">Loading chart components...</p></div> 
+})
 import Navbar from '@/components/layout/Navbar'
 import { CIPHER_REGISTRY } from '@/lib/cipher/registry'
 

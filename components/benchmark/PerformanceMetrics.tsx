@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { BenchmarkResult } from '@/types/benchmark'
 import { calculateComparison } from '@/lib/utils/benchmark'
 
@@ -7,7 +8,7 @@ interface PerformanceMetricsProps {
   results: BenchmarkResult[]
 }
 
-export default function PerformanceMetrics({ results }: PerformanceMetricsProps) {
+export default React.memo(function PerformanceMetrics({ results }: PerformanceMetricsProps) {
   if (results.length === 0) {
     return (
       <div className="rounded-lg border border-zinc-200 bg-white p-6 text-center dark:border-zinc-800 dark:bg-zinc-900">
@@ -112,4 +113,4 @@ export default function PerformanceMetrics({ results }: PerformanceMetricsProps)
       </div>
     </div>
   )
-}
+})

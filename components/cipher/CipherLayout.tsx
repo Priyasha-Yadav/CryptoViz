@@ -1,12 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import React from 'react'
+import dynamic from 'next/dynamic'
 import type { CipherDefinition } from '../../lib/cipher/registry'
 import { useCipherWorker } from '../../lib/hooks/useCipherWorker'
-import StepAnimator from './StepAnimator'
-import PlayfairGrid from './PlayfairGrid'
-import RailFenceViz from './RailFenceViz'
-import DHVisualizer from './DHVisualizer'
+
+const StepAnimator = dynamic(() => import('./StepAnimator'), { ssr: false })
+const PlayfairGrid = dynamic(() => import('./PlayfairGrid'), { ssr: false })
+const RailFenceViz = dynamic(() => import('./RailFenceViz'), { ssr: false })
+const DHVisualizer = dynamic(() => import('./DHVisualizer'), { ssr: false })
 
 interface CipherLayoutProps {
   cipher: CipherDefinition
@@ -43,7 +46,7 @@ const isValidHistoryArray = (data: unknown): data is HistoryEntry[] => {
   )
 }
 
-export default function CipherLayout({ cipher }: CipherLayoutProps) {
+export default React.memo(function CipherLayout({ cipher }: CipherLayoutProps) {
   const { runCipher, loading, error: workerError } = useCipherWorker()
 
   const [input, setInput] = useState(cipher.defaultInput)
@@ -166,6 +169,7 @@ export default function CipherLayout({ cipher }: CipherLayoutProps) {
     }, 450)
 
     return () => clearTimeout(debounceId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoCompute, cipher, input, key, action, hexInput, rounds, demoMode, bobSecret])
 
   // Helper for status badge styling
@@ -526,4 +530,4 @@ export default function CipherLayout({ cipher }: CipherLayoutProps) {
       </div>
     </div>
   )
-}
+})

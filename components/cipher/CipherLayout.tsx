@@ -1,13 +1,22 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import React from 'react'
+import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import type { CipherDefinition } from '../../lib/cipher/registry'
+import type { CipherResult } from '../../lib/cipher/types'
 import { useCipherWorker } from '../../lib/hooks/useCipherWorker'
 import TraceTransferControls from './TraceTransferControls'
 import { traceToCipherResult, type CipherTraceFile } from '../../lib/utils/cipherTrace'
 import type { CipherResult } from '../../lib/cipher/types'
+import type { AnimationSpeed } from './StepAnimator'
+import WorkspacePresetManager from './WorkspacePresetManager'
+import type { WorkspacePreset } from '../../lib/utils/workspacePresets'
+import TraceTransferControls from './TraceTransferControls'
+import {
+  traceToCipherResult,
+  type CipherTraceFile,
+} from '../../lib/utils/cipherTrace'
+
 const StepAnimator = dynamic(() => import('./StepAnimator'), { ssr: false })
 const PlayfairGrid = dynamic(() => import('./PlayfairGrid'), { ssr: false })
 const RailFenceViz = dynamic(() => import('./RailFenceViz'), { ssr: false })
@@ -64,6 +73,7 @@ export default function CipherLayout({ cipher }: CipherLayoutProps) {
   const [result, setResult] = useState<CipherResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [animationSpeed, setAnimationSpeed] = useState<AnimationSpeed>(1);
   const [activeTab, setActiveTab] = useState<"result" | "history">("result");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
 
@@ -77,6 +87,7 @@ export default function CipherLayout({ cipher }: CipherLayoutProps) {
     setResult(null);
     setError(null);
     setCurrentStep(0);
+    setAnimationSpeed(1);
     setActiveTab("result");
 
     try {
@@ -113,6 +124,47 @@ export default function CipherLayout({ cipher }: CipherLayoutProps) {
       }
     };
   }, [cipher]);
+
+  const workspaceOptions: Record<string, unknown> = {
+    hexInput,
+    rounds,
+    demoMode,
+    bobSecret,
+  };
+
+  const handlePresetLoad = (preset: WorkspacePreset) => {
+    if (preset.cipherId !== cipher.id) {
+      setError("This preset belongs to a different cipher.");
+      return;
+    }
+
+    setAutoCompute(false);
+    setAction(cipher.id === "dh" ? "encrypt" : preset.direction);
+    setInput(preset.input);
+
+    if (preset.key !== undefined) {
+      setKey(preset.key);
+    }
+
+    if (typeof preset.options.hexInput === "boolean") {
+      setHexInput(preset.options.hexInput);
+    }
+    if (typeof preset.options.rounds === "number") {
+      setRounds(preset.options.rounds);
+    }
+    if (typeof preset.options.demoMode === "boolean") {
+      setDemoMode(preset.options.demoMode);
+    }
+    if (typeof preset.options.bobSecret === "string") {
+      setBobSecret(preset.options.bobSecret);
+    }
+
+    setAnimationSpeed(preset.animationSpeed);
+    setResult(null);
+    setCurrentStep(0);
+    setActiveTab("result");
+    setError(null);
+  };
 
   const handleRun = async () => {
     if (abortControllerRef.current) {
@@ -200,6 +252,7 @@ export default function CipherLayout({ cipher }: CipherLayoutProps) {
 
   const handleTraceImport = (trace: CipherTraceFile) => {
     // Loading a trace only updates local UI state. It does not call runCipher().
+    setAutoCompute(false);
     setInput(trace.input);
     setKey(trace.key);
     setAction(trace.direction);
@@ -228,12 +281,21 @@ export default function CipherLayout({ cipher }: CipherLayoutProps) {
     if (!autoCompute) return;
 
     const debounceId = setTimeout(() => {
-      void handleRun()
-    }, 450)
+      void handleRun();
+    }, 450);
 
-    return () => clearTimeout(debounceId)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoCompute, cipher, input, key, action, hexInput, rounds, demoMode, bobSecret])
+    return () => clearTimeout(debounceId);
+  }, [
+    autoCompute,
+    cipher,
+    input,
+    key,
+    action,
+    hexInput,
+    rounds,
+    demoMode,
+    bobSecret,
+  ]);
 
   // Helper for status badge styling
   const getStatusBadge = (status: "secure" | "deprecated" | "broken") => {
@@ -487,6 +549,19 @@ export default function CipherLayout({ cipher }: CipherLayoutProps) {
             </div>
           </div>
 
+          <WorkspacePresetManager
+            cipherId={cipher.id}
+            workspace={{
+              cipherId: cipher.id,
+              direction: cipher.id === "dh" ? "encrypt" : action,
+              input,
+              key,
+              options: workspaceOptions,
+              animationSpeed,
+            }}
+            onLoad={handlePresetLoad}
+          />
+
           {/* Errors Display */}
           {(error || workerError) && (
             <div className="rounded-xl border border-red-100 bg-red-50 p-4 dark:border-red-950/40 dark:bg-red-950/10">
@@ -597,6 +672,8 @@ export default function CipherLayout({ cipher }: CipherLayoutProps) {
                     steps={result.steps}
                     currentStep={currentStep}
                     onStepChange={setCurrentStep}
+                    speed={animationSpeed}
+                    onSpeedChange={setAnimationSpeed}
                   />
                 </div>
               )}
@@ -647,5 +724,5 @@ export default function CipherLayout({ cipher }: CipherLayoutProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

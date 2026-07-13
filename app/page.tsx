@@ -2,10 +2,11 @@
 import HeroIllustration from "@/components/HeroIllustration";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Analytics } from "@vercel/analytics/next"
+import dynamic from 'next/dynamic';
 import Navbar from "../components/layout/Navbar";
-import Typewriter from "../components/layout/typewriter";
+const Typewriter = dynamic(() => import("../components/layout/typewriter"), { ssr: false });
 import SkeletonCard from "../components/ui/SkeletonCard";
 import {
   Shield,
@@ -17,17 +18,8 @@ import { Zap, ShieldCheck, BookOpen } from "lucide-react";
 
 import Footer from "../components/layout/footer";
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  const categories = [
+  const categories = useMemo(() => [
     {
       title: "Classical Ciphers",
       description:
@@ -116,7 +108,7 @@ export default function Home() {
       link: "/visualizer/rsa/",
       glowClass: "hover:shadow-[0_0_25px_rgba(225,29,72,0.15)] dark:hover:shadow-[0_0_25px_rgba(244,63,94,0.15)]"
     },
-  ];
+  ], []);
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans transition-colors duration-300">
@@ -167,103 +159,55 @@ export default function Home() {
           />
         </div>
 
-        <div className="mx-auto max-w-[1400px] px-6 pt-10 pb-20 lg:px-8">
+        <div className="mx-auto max-w-5xl text-center">
+  <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-6xl">
+    
+    <span className="block mb-2">Interact with Cryptography,</span>
+    
+    
+    <span className="block text-teal-600 dark:text-teal-400 min-h-[1.2em] sm:min-h-[1.5em]">
+      <Typewriter 
+        words={[
+          "Visualised in Real-Time.",
+          "Made Simple.",
+          "Explore the World of Cryptography."
+        ]}
+      />
+    </span>
+  </h1>
+  
+  
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-zinc-600 dark:text-zinc-400">
+            Looking for a starting point or more instructions? Head over to{" "}
+            <a
+              href="https://vercel.com/templates?framework=next.js"
+              className="font-medium text-zinc-950 dark:text-zinc-50 hover:underline"
+            >
+              Templates
+            </a>{" "}
+            or the{" "}
+            <a
+              href="https://nextjs.org/learn"
+              className="font-medium text-zinc-950 dark:text-zinc-50 hover:underline"
+            >
+              Learning
+            </a>{" "}
+            center.
+          </p>
 
-          <div className="grid items-center gap-12 lg:grid-cols-[1fr_520px]">
-
-            {/* LEFT */}
-
-            <div>
-
-              <div className="inline-flex items-center rounded-full border border-teal-500/30 bg-purple-500/10 px-4 py-2 text-sm font-medium text-purple-300">
-                ⚡ Interactive Cryptography Playground
-              </div>
-
-              <div className="absolute left-10 top-24 h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
-
-              <div className="absolute left-72 top-40 h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
-
-              <div className="absolute left-56 top-80 h-2 w-2 rounded-full bg-cyan-300 animate-pulse" />
-
-              <h1 className="mt-7 text-5xl font-black leading-[0.95] tracking-tight text-zinc-900 dark:text-white lg:text-5xl">
-
-                Interact with
-
-                <span className="block mt-2">
-                  Modern
-                </span>
-
-                <span className="block w-fit bg-gradient-to-r from-cyan-300 via-teal-300 to-violet-400 bg-clip-text text-transparent drop-shadow-[0_0_22px_rgba(56,189,248,.35)]">
-                  Cryptography
-                </span>
-
-              </h1>
-
-              <div className="mt-3 flex min-h-[30px] text-2xl font-semibold">
-                <Typewriter
-                  words={[
-                    "Visualised in Real-Time.",
-                    "Learn by Experimenting.",
-                    "Explore Modern Algorithms."
-                  ]}
-                />
-              </div>
-
-              <p className="mt-8 max-w-2xl text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-                Learn encryption, hashing and secure communication through
-                beautiful interactive visualisations designed for students,
-                developers and security enthusiasts.
-              </p>
-
-              <div className="mt-10 flex flex-wrap gap-4">
-
-                <Link
-                  href="/visualizer/caesar/"
-                  className="rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 px-7 py-4 font-semibold text-white shadow-lg shadow-teal-500/20 transition hover:scale-105"
-                >
-                  Open Playground →
-                </Link>
-
-                <a
-                  href="/docs"
-                  className="rounded-xl border border-zinc-700 bg-zinc-900/60 px-8 py-4 text-lg font-semibold text-white backdrop-blur transition-all duration-300 hover:border-cyan-500 hover:bg-zinc-800"
-                >
-                  Documentation
-                </a>
-
-              </div>
-
-              <div className="mt-14 grid grid-cols-3 gap-4">
-
-                <div className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:border-cyan-400/40 hover:bg-white/10 hover:shadow-[0_0_35px_rgba(34,211,238,.18)]">
-                  <h3 className="text-lg font-semibold text-white"><Zap className="mb-4 text-cyan-400" size={22} /> Interactive</h3>
-                  <p className="mt-2 text-sm text-zinc-500">
-                    Live playground
-                  </p>
-                </div>
-
-                <div className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:border-cyan-400/40 hover:bg-white/10 hover:shadow-[0_0_35px_rgba(34,211,238,.18)]">
-                  <h3 className="text-lg font-semibold text-white"><ShieldCheck className="mb-4 text-cyan-400" size={22} /> Secure</h3>
-                  <p className="mt-2 text-sm text-zinc-500">
-                    Modern algorithms
-                  </p>
-                </div>
-
-                <div className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:border-cyan-400/40 hover:bg-white/10 hover:shadow-[0_0_35px_rgba(34,211,238,.18)]">
-                  <h3 className="text-lg font-semibold text-white"><BookOpen className="mb-4 text-cyan-400" size={22} /> Learn</h3>
-                  <p className="mt-2 text-sm text-zinc-500">
-                    Step-by-step
-                  </p>
-                </div>
-
-              </div>
-
-            </div>
-            {/* RIGHT  */}
-            <div className="relative -translate-y-8 flex items-center justify-center">
-
-              <HeroIllustration />
-            </div>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/visualizer/caesar/"
+className="rounded-lg bg-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:scale-[1.02] hover:bg-teal-500 hover:shadow-lg active:scale-[0.98] dark:bg-teal-500 dark:hover:bg-teal-400"            >
+              Open Interactive Playground
+            </Link>
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noreferrer"
+className="rounded-lg border border-zinc-200 bg-white px-6 py-3 text-sm font-semibold text-zinc-800 shadow-sm transition-all duration-200 hover:scale-[1.02] hover:bg-zinc-50 hover:shadow-md active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"            >
+              View Documentation
+            </a>
           </div>
         </div>
       </section>
@@ -271,16 +215,20 @@ export default function Home() {
       {/* Categories Grid */}
       < section className="mx-auto max-w-5xl py-12 px-4 sm:px-6 lg:px-8" >
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          {isLoading
-            ? Array.from({ length: 4 }).map((_, idx) => <SkeletonCard key={idx} />)
-            : categories.map((cat, idx) => (
-              <div
-                key={idx}
-                className={`group relative flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 dark:border-zinc-850 dark:bg-zinc-900/40 ${cat.glowClass}`}
-              >
-                <div>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-50 dark:bg-zinc-950/50">
-                    {cat.icon}
+          {categories.map((cat, idx) => (
+                <div
+                  key={idx}
+                  className={`group relative flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 dark:border-zinc-850 dark:bg-zinc-900/40 ${cat.glowClass}`}
+                >
+                  <div>
+<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-50 transition-transform duration-300 group-hover:scale-110 dark:bg-zinc-950/50">                      {cat.icon}
+                    </div>
+                    <h3 className="mt-4 text-lg font-bold text-zinc-900 dark:text-white transition-colors group-hover:text-teal-600 dark:group-hover:text-teal-400">
+                      {cat.title}
+                    </h3>
+                    <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                      {cat.description}
+                    </p>
                   </div>
                   <h3 className="mt-4 text-lg font-bold text-zinc-900 dark:text-white transition-colors group-hover:text-teal-600 dark:group-hover:text-teal-400">
                     {cat.title}

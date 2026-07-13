@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { CIPHER_REGISTRY } from '@/lib/cipher/registry'
 
 interface AlgorithmSelectorProps {
@@ -9,14 +9,14 @@ interface AlgorithmSelectorProps {
   category?: 'classical' | 'symmetric' | 'hash' | 'asymmetric' | null
 }
 
-export default function AlgorithmSelector({
+export default React.memo(function AlgorithmSelector({
   selectedAlgorithms,
   onSelectionChange,
   category = null,
 }: AlgorithmSelectorProps) {
-  const filteredCiphers = category
+  const filteredCiphers = useMemo(() => category
     ? CIPHER_REGISTRY.filter((c) => c.category === category)
-    : CIPHER_REGISTRY
+    : CIPHER_REGISTRY, [category])
 
   const handleToggle = useCallback(
     (cipherId: string) => {
@@ -45,13 +45,12 @@ export default function AlgorithmSelector({
         <div className="flex gap-2">
           <button
             onClick={handleSelectAll}
-            className="rounded px-3 py-1 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
-          >
+className="rounded px-3 py-1 text-sm font-medium text-zinc-600 transition-all duration-200 hover:scale-105 hover:bg-zinc-100 active:scale-95 dark:text-zinc-400 dark:hover:bg-zinc-800"          >
             Select All
           </button>
           <button
             onClick={handleDeselectAll}
-            className="rounded px-3 py-1 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            className="rounded px-3 py-1 text-sm font-medium text-zinc-600 transition-all duration-200 hover:scale-105 hover:bg-zinc-100 active:scale-95 dark:text-zinc-400 dark:hover:bg-zinc-800"
           >
             Deselect All
           </button>
@@ -62,8 +61,7 @@ export default function AlgorithmSelector({
         {filteredCiphers.map((cipher) => (
           <label
             key={cipher.id}
-            className="flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-200 p-3 transition-colors hover:border-teal-400 hover:bg-teal-50 dark:border-zinc-700 dark:hover:border-teal-500 dark:hover:bg-zinc-800"
-          >
+className="flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-200 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-400 hover:bg-teal-50 hover:shadow-sm dark:border-zinc-700 dark:hover:border-teal-500 dark:hover:bg-zinc-800"          >
             <input
               type="checkbox"
               checked={selectedAlgorithms.includes(cipher.id)}
@@ -98,4 +96,4 @@ export default function AlgorithmSelector({
       </div>
     </div>
   )
-}
+})
